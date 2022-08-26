@@ -3,20 +3,28 @@
 namespace Test\Eone;
 
 use Eone\EasyEnergyPrice;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpClient\MockHttpClient;
+use Symfony\Component\HttpClient\Response\MockResponse;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-class EasyEnergyPriceTest extends \PHPUnit\Framework\TestCase {
+class EasyEnergyPriceTest extends TestCase {
 
     /**
      * @var EasyEnergyPrice
      */
     protected $object;
+    protected HttpClientInterface $client;
+    protected $response;
 
     /**
      * Sets up the fixture, for example, opens a network connection.
      * This method is called before a test is executed.
      */
     protected function setUp(): void {
-        $this->object = new EasyEnergyPrice();
+        $this->response = file_get_contents("tests/fixtures/day.json");
+        $mockResponse = new MockResponse($this->response);
+        $this->object = new EasyEnergyPrice(new MockHttpClient($mockResponse));
     }
 
     /**
@@ -29,12 +37,11 @@ class EasyEnergyPriceTest extends \PHPUnit\Framework\TestCase {
 
     /**
      * @covers Eone\EasyEnergyPrice::read
-     * @todo   Implement testRead().
+     * @covers Eone\EasyEnergyPrice::getPrices
      */
-    public function testRead() {
-        $this->assertEquals('', $this->object->Read());
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete('This test has not been implemented yet.');
+    public function testReadAndGetPrices() {
+        $this->assertTrue($this->object->Read());
+        $this->assertJsonStringEqualsJsonString($this->response, $this->object->getPrices());
     }
 
     /**
@@ -42,9 +49,7 @@ class EasyEnergyPriceTest extends \PHPUnit\Framework\TestCase {
      * @todo   Implement testStore().
      */
     public function testStore() {
-        $this->assertEquals('', $this->object->Store());
-        // Remove the following lines when you implement this test.
         $this->markTestIncomplete('This test has not been implemented yet.');
+        $this->assertTrue($this->object->Store());
     }
-
 }
