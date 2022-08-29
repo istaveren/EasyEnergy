@@ -41,15 +41,6 @@ class EasyEnergyPriceTest extends TestCase {
      */
     public function testReadAndGetPrices() {
         $this->assertTrue($this->object->Read());
-        $this->assertJsonStringEqualsJsonString($this->response, $this->object->getPrices());
-    }
-
-    /**
-     * @covers Eone\EasyEnergyPrice::store
-     * @todo   Implement testStore().
-     */
-    public function testStore() {
-        $this->markTestIncomplete('This test has not been implemented yet.');
-        $this->assertTrue($this->object->Store());
+        $this->assertEquals(json_decode($this->response, true), $this->object->getPrices());
     }
 }
