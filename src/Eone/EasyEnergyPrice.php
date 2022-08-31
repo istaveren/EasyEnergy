@@ -9,28 +9,30 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 /**
  * Read prices from EasyEnergy.com
  */
-class EasyEnergyPrice {
-
-    const PRICES_URL = "https://mijn.easyenergy.com/nl/api/tariff/getapxtariffs";
-    const DATE_START_FILTER = "startTimestamp";
-    const DATE_END_FITLER = "endTimestamp";
-    const FORMAT_ISO = "c";
+class EasyEnergyPrice
+{
+    public const PRICES_URL = "https://mijn.easyenergy.com/nl/api/tariff/getapxtariffs";
+    public const DATE_START_FILTER = "startTimestamp";
+    public const DATE_END_FITLER = "endTimestamp";
+    public const FORMAT_ISO = "c";
 
     private HttpClientInterface $httpClient;
     private $prices = [];
     private $errorBody = '';
 
-    public function __construct(HttpClientInterface $client) {
+    public function __construct(HttpClientInterface $client)
+    {
         $this->httpClient = $client;
     }
 
     /**
      * Read the prices for a given day.
-     * 
+     *
      * @param \DateTimeImmutable $date Defaults to now
      * @return bool
      */
-    public function read(\DateTimeImmutable $date = new \DateTimeImmutable()): bool {
+    public function read(\DateTimeImmutable $date = new \DateTimeImmutable()): bool
+    {
         $success = false;
         $options = ['query' => [self::DATE_START_FILTER => $date->format(self::FORMAT_ISO),
                 self::DATE_END_FITLER => $date->modify("+1 day")->format(self::FORMAT_ISO)]
@@ -49,15 +51,16 @@ class EasyEnergyPrice {
 
     /**
      * Get the prices
-     * 
+     *
      * @return array
      */
-    public function getPrices(): array {
+    public function getPrices(): array
+    {
         return $this->prices;
     }
 
-    public function getErrorMessage(): string {
+    public function getErrorMessage(): string
+    {
         return $this->errorBody;
     }
-
 }

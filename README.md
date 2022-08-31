@@ -19,3 +19,13 @@ To run PHPunit use
 
     ./vendor/bin/phpunit --colors=auto --testdox tests
 
+## With Docker
+
+To run the applicaton in Docker. Assume you have docker installed and docker-compose.
+
+```bash
+docker compose up -d
+docker compose run --rm ./vendor/bin/phpunit --colors=auto --testdox tests
+docker compose run --rm app ./prices easyEnergy:read
+```
+
