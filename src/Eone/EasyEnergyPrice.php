@@ -28,14 +28,15 @@ class EasyEnergyPrice
     /**
      * Read the prices for a given day.
      *
-     * @param \DateTimeImmutable $date Defaults to now
+     * @param \DateTimeImmutable $startDate Defaults to now
+     * @param \DateTimeImmutable $endDate Defaults to tomorrow
      * @return bool
      */
-    public function read(\DateTimeImmutable $date = new \DateTimeImmutable()): bool
+    public function read(\DateTimeImmutable $startDate = new \DateTimeImmutable(), ?\DateTimeImmutable $endDate = null): bool
     {
         $success = false;
-        $options = ['query' => [self::DATE_START_FILTER => $date->format(self::FORMAT_ISO),
-                self::DATE_END_FITLER => $date->modify("+1 day")->format(self::FORMAT_ISO)]
+        $options = ['query' => [self::DATE_START_FILTER => $startDate->format(self::FORMAT_ISO),
+                self::DATE_END_FITLER => ($endDate === null ? $startDate->modify("+1 day") : $endDate)->format(self::FORMAT_ISO)]
                 ];
         $response = $this->httpClient->request("GET", self::PRICES_URL, $options);
         if ($response->getStatusCode() == 200) {

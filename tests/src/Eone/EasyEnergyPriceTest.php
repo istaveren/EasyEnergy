@@ -1,6 +1,6 @@
 <?php
 
-namespace Test\Eone;
+namespace Eone;
 
 use Eone\EasyEnergyPrice;
 use PHPUnit\Framework\TestCase;
@@ -16,24 +16,16 @@ class EasyEnergyPriceTest extends TestCase
     protected $object;
     protected HttpClientInterface $client;
     protected $response;
+    protected MockResponse $mockResponse;
 
     /**
-     * Sets up the fixture, for example, opens a network connection.
-     * This method is called before a test is executed.
+     * Sets up the fixture
      */
     protected function setUp(): void
     {
         $this->response = file_get_contents("tests/fixtures/day.json");
-        $mockResponse = new MockResponse($this->response);
-        $this->object = new EasyEnergyPrice(new MockHttpClient($mockResponse));
-    }
-
-    /**
-     * Tears down the fixture, for example, closes a network connection.
-     * This method is called after a test is executed.
-     */
-    protected function tearDown(): void
-    {
+        $this->mockResponse = new MockResponse($this->response);
+        $this->object = new EasyEnergyPrice(new MockHttpClient($this->mockResponse));
     }
 
     /**
@@ -42,7 +34,31 @@ class EasyEnergyPriceTest extends TestCase
      */
     public function testReadAndGetPrices()
     {
+        $startDate = new \DateTimeImmutable();
         $this->assertTrue($this->object->Read());
+        $this->assertEquals(['startTimestamp' => $startDate->format('c'), 'endTimestamp' => $startDate->modify('+1 day')->format('c')], $this->mockResponse->getRequestOptions()['query']);
         $this->assertEquals(json_decode($this->response, true), $this->object->getPrices());
+    }
+
+    public function testReadAndGetPricesWithDates()
+    {
+        $startDate = new \DateTimeImmutable('-4 weeks');
+        $endDate = new \DateTimeImmutable('yesterday');
+        $this->assertTrue($this->object->Read($startDate, $endDate));
+        $this->assertEquals(['startTimestamp' => $startDate->format('c'), 'endTimestamp' => $endDate->format('c')], $this->mockResponse->getRequestOptions()['query']);
+    }
+
+    /**
+     * @covers Eone\EasyEnergyPrice::getErrorMessage
+     * @covers Eone\EasyEnergyPrice::read
+     */
+    public function testGetErrorMessage()
+    {
+        $this->response = "Not found";
+        $this->mockResponse = new MockResponse($this->response, ['http_code' => 404]);
+        $this->object = new EasyEnergyPrice(new MockHttpClient($this->mockResponse));
+
+        $this->assertFalse($this->object->Read());
+        $this->assertEquals('Status code: 404. Error body: '.$this->response, $this->object->getErrorMessage());
     }
 }

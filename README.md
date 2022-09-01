@@ -25,7 +25,21 @@ To run the applicaton in Docker. Assume you have docker installed and docker-com
 
 ```bash
 docker compose up -d
-docker compose run --rm ./vendor/bin/phpunit --colors=auto --testdox tests
-docker compose run --rm app ./prices easyEnergy:read
+docker compose exec app ./vendor/bin/phpunit
+docker compose exec app ./prices easyEnergy:read
 ```
 
+## Create table
+
+Table needed in MySql 
+
+```sql
+SET NAMES utf8mb4;
+
+DROP TABLE IF EXISTS `price_per_hour`;
+CREATE TABLE `price_per_hour` (
+  `time` datetime NOT NULL,
+  `price` decimal(7,5) NOT NULL,
+  PRIMARY KEY (`time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+```
